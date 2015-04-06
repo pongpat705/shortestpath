@@ -147,30 +147,10 @@ final class GraphAStar<T> implements Iterable<T> {
 }
 
 public class astar<T> {
-    Double distance;
-    String source,destinaion;
 
     private final GraphAStar<T> graph;
     // setter getter
-    private void setDistance(double distance){
-        this.distance = distance;
-    }
-    private double getDistance(){
 
-        return distance;
-    }
-    public String getSource() {
-        return source;
-    }
-    public void setSource(String source) {
-        this.source = source;
-    }
-    public String getDestinaion() {
-        return destinaion;
-    }
-    public void setDestinaion(String destinaion) {
-        this.destinaion = destinaion;
-    }
     // setter getter
 
     public astar(GraphAStar<T> graphAStar) {
@@ -197,38 +177,46 @@ public class astar<T> {
         /**
          * http://stackoverflow.com/questions/20344041/why-does-priority-queue-has-default-initial-capacity-of-11
          */
-        setSource((String) source);
-        setDestinaion((String) destination);
+
         final Queue<NodeData<T>> openQueue = new PriorityQueue<NodeData<T>>(11, new NodeComparator());
 
         NodeData<T> sourceNodeData = graph.getNodeData(source);
+        System.out.println("sourceNodeData = graph.getNodeData(source): "+sourceNodeData.getNodeId());
         sourceNodeData.setG(0);
         sourceNodeData.calcF(destination);
         openQueue.add(sourceNodeData);
+        System.out.println("after add source to openqueue "+openQueue.element().getNodeId());
 
         final Map<T, T> path = new HashMap<T, T>();
         final Set<NodeData<T>> closedList = new HashSet<NodeData<T>>();
 
         while (!openQueue.isEmpty()) {
             final NodeData<T> nodeData = openQueue.poll();
+            System.out.println("nodeData = openqueue "+nodeData.getNodeId());
 
             if (nodeData.getNodeId().equals(destination)) {
+                System.out.println("NodeData = destination, So return path");
                 return path(path, destination);
+            }else {
+                System.out.println("NodeData != destination");
             }
 
             closedList.add(nodeData);
+            System.out.println("closedList add nodeData "+nodeData.getNodeId()+"\n closedList has"+closedList);
 
             for (Map.Entry<NodeData<T>, Double> neighborEntry : graph.edgesFrom(nodeData.getNodeId()).entrySet()) {
                 NodeData<T> neighbor = neighborEntry.getKey();
+                System.out.println("neighbor = neighborentry.getkey "+neighbor.getNodeId());
 
                 if (closedList.contains(neighbor)) continue;
 
                 double distanceBetweenTwoNodes = neighborEntry.getValue();
+                System.out.println("distanceBetween2node "+distanceBetweenTwoNodes);
                 double tentativeG = distanceBetweenTwoNodes + nodeData.getG();
+                System.out.println("tentativeG "+tentativeG);
 
                 if (tentativeG < neighbor.getG()) {
                     neighbor.setG(tentativeG);
-                    setDistance(tentativeG);
                     neighbor.calcF(destination);
 
                     path.put(neighbor.getNodeId(), nodeData.getNodeId());
@@ -265,45 +253,45 @@ public class astar<T> {
         Map<String, Double> mapA = new HashMap<String, Double>();
         mapA.put("A",  0.0);
         mapA.put("B", 10.0);
-        mapA.put("C", 20.0);
-        mapA.put("E", 100.0);
-        mapA.put("F", 110.0);
+        mapA.put("C", 17.0);
+        mapA.put("E", 20.0);
+        mapA.put("F", 26.0);
 
 
         // map for B
         Map<String, Double> mapB = new HashMap<String, Double>();
         mapB.put("A", 10.0);
         mapB.put("B",  0.0);
-        mapB.put("C", 10.0);
-        mapB.put("E", 25.0);
-        mapB.put("F", 40.0);
+        mapB.put("C", 7.0);
+        mapB.put("E", 8.0);
+        mapB.put("F", 16.0);
 
 
 
         // map for C
         Map<String, Double> mapC = new HashMap<String, Double>();
-        mapC.put("A", 20.0);
-        mapC.put("B", 10.0);
-        mapC.put("C",  0.0);
-        mapC.put("E", 10.0);
-        mapC.put("F", 30.0);
+        mapC.put("A", 17.0);
+        mapC.put("B", 7.0);
+        mapC.put("C", 0.0);
+        mapC.put("E", 8.0);
+        mapC.put("F", 9.0);
 
 
         // map for X
         Map<String, Double> mapX = new HashMap<String, Double>();
-        mapX.put("A", 100.0);
-        mapX.put("B", 25.0);
-        mapX.put("C", 10.0);
+        mapX.put("A", 20.0);
+        mapX.put("B", 15.0);
+        mapX.put("C", 8.0);
         mapX.put("E",  0.0);
-        mapX.put("F", 10.0);
+        mapX.put("F", 6.0);
 
         // map for X
         Map<String, Double> mapZ = new HashMap<String, Double>();
-        mapZ.put("A", 110.0);
-        mapZ.put("B",  40.0);
-        mapZ.put("C",  30.0);
-        mapZ.put("E", 10.0);
-        mapZ.put("F",  0.0);
+        mapZ.put("A", 26.0);
+        mapZ.put("B", 16.0);
+        mapZ.put("C", 9.0);
+        mapZ.put("E", 6.0);
+        mapZ.put("F", 0.0);
 
         heuristic.put("A", mapA);
         heuristic.put("B", mapB);
@@ -325,13 +313,17 @@ public class astar<T> {
         graph.addEdge("C", "F", 9);
         graph.addEdge("E", "F", 6);
 
-
+    /*    System.out.println(mapA);
+        System.out.println(mapB);
+        System.out.println(mapC);
+        System.out.println(mapX);
+        System.out.println(mapZ);
+        System.out.println(heuristic);*/
 
         astar<String> aStar = new astar<String>(graph);
 
-        for (String path : aStar.astar("F", "B")) {
-            System.out.print(" - " + path);
+        for (String path : aStar.astar("A", "F")) {
+            System.out.print("  " + path);
         }
-        System.out.println("\n Distance "+aStar.getSource()+" to "+aStar.getDestinaion()+" = "+aStar.getDistance());
     }
 }
